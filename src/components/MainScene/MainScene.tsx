@@ -2,6 +2,7 @@ import Player from "../Player/Player";
 
 export default class MainScene extends Phaser.Scene {
     player!: Player;
+    player2!: Player;
     inputKeys!: Record<string, Phaser.Input.Keyboard.Key>;
 
     constructor() {
@@ -10,9 +11,14 @@ export default class MainScene extends Phaser.Scene {
 
     preload() {
       Player.preload(this)
+      this.load.image('tiles', '/assets/tileset.png')
+      this.load.tilemapTiledJSON('map', '/assets/map.json')
     }
 
     create() {
+        const map = this.make.tilemap({key: 'map'})
+        const tileset = map.addTilesetImage('RPG Nature Tileset', 'tiles', 32, 32, 0, 0)
+        const layer1 = map.createLayer('Tile Layer 1', tileset!, 0, 0)
         this.player = new Player({ scene: this, x: 0, y: 0, texture: 'male', frame: 'bandit_idle_1' });
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -20,10 +26,11 @@ export default class MainScene extends Phaser.Scene {
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D
         }) as Record<string, Phaser.Input.Keyboard.Key>;
+
     }
 
     update(){
-        this.player.update()
+        this.player.update();
     }
     
 }

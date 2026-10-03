@@ -5,6 +5,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         const { scene, x, y, texture, frame } = data
         super(scene.matter.world, x, y, texture, frame)
         this.scene.add.existing(this)
+
+        // @ts-ignore
+        const {Body, Bodies} = Phaser.Physics.Matter.Matter
+        let playerCollider = Bodies.circle(0, 0, 12, {isSensor:false, label:'playerCollider'})
+        let playerSensor = Bodies.circle(0, 0, 24, {isSensor:true, label:'playerSensor'})
+        const compoundBody = Body.create({
+            parts: [playerCollider, playerSensor],
+            frictionAir: 0.35
+        })
+        this.setExistingBody(compoundBody)
+        this.setFixedRotation()
     }
 
     static preload(scene: Phaser.Scene) {
@@ -13,7 +24,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
 
     update() {
-        this.anims.play('male_walk', true);
+        
         const speed = 2.5
         let playerVelocity = new Phaser.Math.Vector2();
 
@@ -31,5 +42,12 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         playerVelocity.normalize();
         playerVelocity.scale(speed)
         this.setVelocity(playerVelocity.x, playerVelocity.y)
+
+        //Choose between walking animation or idle 
+        if(Math.abs(this.getVelocity().x) > 0.1 || Math.abs(this.getVelocity().y) > 0.1) {
+            this.anims.play('male_walk', true);
+        } else {
+            this.anims.play('male_idle', true);
+        }
     }
 }
