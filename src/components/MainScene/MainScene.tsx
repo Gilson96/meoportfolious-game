@@ -1,4 +1,4 @@
-import Player from "../Player/Player";
+import Player from "../Entities/Player";
 
 export default class MainScene extends Phaser.Scene {
     player!: Player;
@@ -13,6 +13,7 @@ export default class MainScene extends Phaser.Scene {
       Player.preload(this)
       this.load.image('tiles', '/assets/tileset.png')
       this.load.tilemapTiledJSON('map', '/assets/map.tmj')
+      this.load.atlas('tree_and_bush', '/assets/tree_and_bush.png', '/assets/tree_and_bush_atlas.json')
     }
 
     create() {
@@ -22,6 +23,13 @@ export default class MainScene extends Phaser.Scene {
         const layer2 = map.createLayer('Road', tileset!, 0, 0)
         layer1?.setCollisionByProperty({collides:true})
         this.matter.world.convertTilemapLayer(layer1!)
+
+        let tree = new Phaser.Physics.Matter.Sprite(this.matter.world, 50,50,'tree_and_bush', 'tree')
+        let bush = new Phaser.Physics.Matter.Sprite(this.matter.world, 150,150,'tree_and_bush', 'bush')
+        tree.setStatic(true)
+        bush.setStatic(true)
+        this.add.existing(tree)
+        this.add.existing(bush)
         this.player = new Player({ scene: this, x: 100, y: 100, texture: 'male', frame: 'bandit_idle_1' });
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
