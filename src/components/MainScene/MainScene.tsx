@@ -10,26 +10,23 @@ export default class MainScene extends Phaser.Scene {
     }
 
     preload() {
-      Player.preload(this)
-      this.load.image('tiles', '/assets/tileset.png')
-      this.load.tilemapTiledJSON('map', '/assets/map.tmj')
-      this.load.atlas('tree_and_bush', '/assets/tree_and_bush.png', '/assets/tree_and_bush_atlas.json')
+        Player.preload(this)
+        this.load.image('tiles', '/assets/tileset.png')
+        this.load.tilemapTiledJSON('map', '/assets/map.tmj')
+        this.load.atlas('tree_and_bush', '/assets/tree_and_bush.png', '/assets/tree_and_bush_atlas.json')
     }
 
     create() {
-        const map = this.make.tilemap({key: 'map'})
+        const map = this.make.tilemap({ key: 'map' })
+        this.map = map
         const tileset = map.addTilesetImage('RPG Nature Tileset', 'tiles', 32, 32, 0, 0)
         const layer1 = map.createLayer('Base', tileset!, 0, 0)
         const layer2 = map.createLayer('Road', tileset!, 0, 0)
-        layer1?.setCollisionByProperty({collides:true})
+        layer1?.setCollisionByProperty({ collides: true })
         this.matter.world.convertTilemapLayer(layer1!)
-
-        let tree = new Phaser.Physics.Matter.Sprite(this.matter.world, 50,50,'tree_and_bush', 'tree')
-        let bush = new Phaser.Physics.Matter.Sprite(this.matter.world, 150,150,'tree_and_bush', 'bush')
-        tree.setStatic(true)
-        bush.setStatic(true)
-        this.add.existing(tree)
-        this.add.existing(bush)
+        
+        this.addResources()
+    
         this.player = new Player({ scene: this, x: 100, y: 100, texture: 'male', frame: 'bandit_idle_1' });
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -40,8 +37,18 @@ export default class MainScene extends Phaser.Scene {
 
     }
 
-    update(){
+    addResources() {
+        const resources = this.map.getObjectLayer('Resources')
+        resources.objects.forEach(resource => {
+            let resourceItem = new Phaser.Physics.Matter.Sprite(this.matter.world, resource.x, resource.y, 'tree_and_bush', resource.class)
+            resourceItem.setStatic(true)
+            this.add.existing(resourceItem)
+
+        })
+    }
+
+    update() {
         this.player.update();
     }
-    
+
 }
