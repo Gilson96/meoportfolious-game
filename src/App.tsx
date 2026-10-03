@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser'
 import PhaserMatterCollisionPlugin from 'phaser-matter-collision-plugin'
 import { useEffect, useRef } from 'react'
+import MainScene from './components/MainScene/MainScene'
 
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -13,7 +14,7 @@ export function App() {
       width: 512,
       height: 512,
       backgroundColor: '#333333',
-      scene: [],
+      scene: [MainScene],
       scale:{
         zoom: 2
       },
