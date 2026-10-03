@@ -8,7 +8,7 @@
          "encoding":"base64",
          "height":16,
          "id":1,
-         "name":"Tile Layer 1",
+         "name":"Base",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,

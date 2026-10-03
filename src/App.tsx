@@ -11,8 +11,8 @@ export function App() {
 
     const game = new Phaser.Game({
       type: Phaser.AUTO,
-      width: 300,
-      height: 300,
+      width: 512,
+      height: 600,
       backgroundColor: '#333333',
       scene: [MainScene],
       scale:{
