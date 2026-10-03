@@ -1,19 +1,48 @@
-import { Button } from "@/components/ui/button"
+import * as Phaser from 'phaser'
+import PhaserMatterCollisionPlugin from 'phaser-matter-collision-plugin'
+import { useEffect, useRef } from 'react'
 
 export function App() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const game = new Phaser.Game({
+      type: Phaser.AUTO,
+      width: 512,
+      height: 512,
+      backgroundColor: '#333333',
+      scene: [],
+      scale:{
+        zoom: 2
+      },
+      parent: containerRef.current,
+      physics: {
+        default: 'matter',
+        matter: {
+          debug: true,
+          gravity: { x: 0, y: 0 }
+        }
+      },
+      plugins: {
+        scene: [
+          {
+            plugin: PhaserMatterCollisionPlugin,
+            key: 'matterCollision',
+            mapping: 'matterCollision'
+          }
+        ]
+      },
+    })
+
+    return () => {
+      game.destroy(true)
+    }
+  }, [])
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
+    <div ref={containerRef} className="flex min-h-svh p-6">
     </div>
   )
 }
