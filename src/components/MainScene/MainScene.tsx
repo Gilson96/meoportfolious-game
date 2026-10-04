@@ -1,7 +1,10 @@
+import type PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import Player from "../Entities/Player";
 import Resource from "../Entities/Resource";
 
 export default class MainScene extends Phaser.Scene {
+    matterCollision!: PhaserMatterCollisionPlugin;
+    resources: Resource[] = [];
     player!: Player;
     player2!: Player;
     map!: Phaser.Tilemaps.Tilemap;
@@ -27,8 +30,6 @@ export default class MainScene extends Phaser.Scene {
         layer1?.setCollisionByProperty({ collides: true })
         this.matter.world.convertTilemapLayer(layer1!)
 
-        this.map.getObjectLayer('Resources')?.objects.forEach((resource: Phaser.Types.Tilemaps.TiledObject) => new Resource({ scene: this, resource }))
-
         this.player = new Player({ scene: this, x: 100, y: 100, texture: 'male', frame: 'bandit_idle_1' });
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -36,11 +37,36 @@ export default class MainScene extends Phaser.Scene {
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D
         }) as Record<string, Phaser.Input.Keyboard.Key>;
+        this.player2 = new Player({ scene: this, x: 200, y: 200, texture: 'male', frame: 'bandit_idle_1' });
+        this.player2.inputKeys = this.input.keyboard!.addKeys({
+            up: 0,
+            down: 0,
+            left: 0,
+            right: 0
+        }) as Record<string, Phaser.Input.Keyboard.Key>;
+
+
+        this.matterCollision?.addOnCollideStart({
+            objectA: this.player.playerCollider,
+            objectB: this.player2.playerCollider,
+            callback: () => {
+               console.log("Player touched door!")
+               this.game.events.emit('open-frame', { name: 'Door' })
+            }
+        })
+
+        this.matterCollision?.addOnCollideEnd({
+            objectA: this.player.playerCollider,
+            objectB: this.player2.playerCollider,
+            callback: () => this.game.events.emit('close-frame')
+        })
+
 
     }
 
     update() {
         this.player.update();
+        this.player2.update();
     }
 
 }
