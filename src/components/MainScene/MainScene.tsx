@@ -45,6 +45,12 @@ export default class MainScene extends Phaser.Scene {
             right: 0
         }) as Record<string, Phaser.Input.Keyboard.Key>;
 
+        // set bounds to camera and follows the sprite
+        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
+        this.cameras.main.startFollow(this.player, true)
+        this.fitCameraToScreen()
+        this.scale.on('resize', this.fitCameraToScreen, this)
+        this.events.once('shutdown', () => this.scale.off('resize', this.fitCameraToScreen, this))
 
         this.matterCollision?.addOnCollideStart({
             objectA: this.player.playerCollider,
@@ -62,6 +68,12 @@ export default class MainScene extends Phaser.Scene {
         })
 
 
+    }
+
+    fitCameraToScreen() {
+        const { width, height } = this.scale.gameSize
+        const zoom = Math.max(width / this.map.widthInPixels, height / this.map.heightInPixels)
+        this.cameras.main.setZoom(zoom)
     }
 
     update() {

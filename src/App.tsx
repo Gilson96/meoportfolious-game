@@ -12,14 +12,11 @@ export function App() {
 
     const game = new Phaser.Game({
       type: Phaser.AUTO,
-      width: 512,
-      height: 512,
       backgroundColor: '#333333',
       pixelArt: true,
       scene: [MainScene],
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        mode: Phaser.Scale.RESIZE
       },
       parent: containerRef.current,
       physics: {
