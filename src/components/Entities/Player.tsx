@@ -1,22 +1,22 @@
 export default class Player extends Phaser.Physics.Matter.Sprite {
-    inputKeys!: Record<string, Phaser.Input.Keyboard.Key>; 
-
-    constructor(data: { scene: {matter: {world: Phaser.Physics.Matter.World}}, x: number, y: number, texture: string, frame: string }) {
-        const { scene, x, y, texture, frame } = data
+    inputKeys!: Record<string, Phaser.Input.Keyboard.Key>;
+    playerCollider!: MatterJS.BodyType;
+    
+    constructor(data: { scene: {matter: {world: Phaser.Physics.Matter.World}}, x: number, y: number, texture: string, frame: string, isStatic?: boolean }) {
+        const { scene, x, y, texture, frame, isStatic = false } = data
         super(scene.matter.world, x, y, texture, frame)
         this.scene.add.existing(this)
 
         // @ts-ignore
         const {Body, Bodies} = Phaser.Physics.Matter.Matter
-        let playerCollider = Bodies.circle(x, y, 12, {isSensor:false, label:'playerCollider'})
-        let playerSensor = Bodies.circle(x, y, 24, {isSensor:true, label:'playerSensor'})
+        this.playerCollider = Bodies.circle(x, y, 12, {isSensor:false, label:'playerCollider'})
         const compoundBody = Body.create({
-            parts: [playerCollider, playerSensor],
+            parts: [this.playerCollider],
             frictionAir: 0.35
         })
         this.setExistingBody(compoundBody)
         this.setFixedRotation()
-        
+        this.setStatic(isStatic)
     }
 
     static preload(scene: Phaser.Scene) {
