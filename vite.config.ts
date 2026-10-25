@@ -11,4 +11,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    port: 5175,
+    strictPort: true,
+    // The backend serves these as static files with no CORS headers, so load them through Vite instead
+    proxy: {
+      "/meoportfolious-assets": "http://localhost:8000",
+    },
+  }
 })
