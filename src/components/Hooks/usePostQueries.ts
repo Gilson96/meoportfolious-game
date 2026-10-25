@@ -8,8 +8,7 @@ export const usePostGameSession = () => {
         mutationFn: () => {
             return axios
                 .post('https://manual-improper-cottage.ngrok-free.dev/game-session', useGameSession.getState())
-                .then((res) => {
-                    console.log(res)
+                .then(() => {
                 })
         }
     })
