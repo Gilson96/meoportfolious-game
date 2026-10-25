@@ -1,13 +1,14 @@
 type ResourceData = {
     scene: Phaser.Scene & { map: Phaser.Tilemaps.Tilemap };
     resource: Phaser.Types.Tilemaps.TiledObject;
+    isStatic: boolean
 };
 
 export default class Resource extends Phaser.Physics.Matter.Sprite {
     inputKeys!: Record<string, Phaser.Input.Keyboard.Key>;
 
     constructor(data: ResourceData) {
-        const { scene, resource }: ResourceData = data
+        const { scene, resource, isStatic }: ResourceData = data
         // Tiled stores the Class on the tileset tile, not on each placed object
         const tileset = scene.map.tilesets.find(ts => ts.containsTileIndex(resource.gid ?? 0))
         const tileData = tileset?.getTileData(resource.gid ?? 0) as { type?: string } | null
@@ -22,9 +23,9 @@ export default class Resource extends Phaser.Physics.Matter.Sprite {
         this.y = this.y + this.height * (yOrigin - 0.5)
         // @ts-ignore
         const { Body, Bodies } = Phaser.Physics.Matter.Matter
-        let circleCollider = Bodies.circle(this.x, this.y, 12, { isSensor: false, label: 'collider' })
+        let circleCollider = Bodies.circle(this.x, this.y, 12, { isSensor: false, label: 'resourceCollider' })
         this.setExistingBody(circleCollider)
-        this.setStatic(true)
+        this.setStatic(isStatic)
         this.setOrigin(0.5, yOrigin)
     }
 
