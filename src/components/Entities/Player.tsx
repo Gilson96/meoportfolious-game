@@ -20,15 +20,15 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
 
     static preload(scene: Phaser.Scene) {
-        scene.load.atlas('male', '../../assets/male.png', '../../assets/male_atlas.json')
-        scene.load.animation('male_anim', '../../assets/male_anim.json')
+        scene.load.atlas('player', '../../assets/player/player.png', '../../assets/player/player_atlas.json')
+        // scene.load.animation('male_anim', '../../assets/player/male_anim.json')
     }
 
     update() {
         
         const speed = 2.5
         let playerVelocity = new Phaser.Math.Vector2();
-
+        
         if (this.inputKeys.left.isDown) {
             playerVelocity.x = -1
         } else if (this.inputKeys.right.isDown) {
@@ -45,10 +45,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         this.setVelocity(playerVelocity.x, playerVelocity.y)
 
         //Choose between walking animation or idle 
-        if(Math.abs(this.getVelocity().x) > 0.1 || Math.abs(this.getVelocity().y) > 0.1) {
-            this.anims.play('male_walk', true);
-        } else {
-            this.anims.play('male_idle', true);
-        }
+        // if(Math.abs(this.getVelocity().x) > 0.1 || Math.abs(this.getVelocity().y) > 0.1) {
+        //     this.anims.play('male_walk', true);
+        // } else {
+        //     this.anims.play('male_idle', true);
+        // }
     }
 }
