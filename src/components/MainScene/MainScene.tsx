@@ -1,7 +1,6 @@
 import type PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import Player from "../Entities/Player";
 import Resource from "../Entities/Resource";
-import {data,errors} from '../Hooks/ShopifyStorefrontApiClient'
 export default class MainScene extends Phaser.Scene {
     matterCollision!: PhaserMatterCollisionPlugin;
     resources: Resource[] = [];
@@ -16,6 +15,8 @@ export default class MainScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.on('progress', (value: number) => this.game.events.emit('load-progress', value))
+
         Player.preload(this)
         // Resource.preload(this)
         this.load.image('concrete_grass', '/assets/tiles/concrete_grass.png')
@@ -28,9 +29,7 @@ export default class MainScene extends Phaser.Scene {
         this.map = map
         const concrete = map.addTilesetImage('concrete_grass', 'concrete_grass')
         map.createLayer('Base', concrete!, 0, 0)
-        // map.createLayer('Road', tileset!, 0, 0)
-        // layer1?.setCollisionByProperty({ collides: true })
-        // this.matter.world.convertTilemapLayer(layer1!)
+
         
         this.player = new Player({ scene: this, x: 100, y: 100, texture: 'player', frame: 'south_frame_000' });
         console.log(this.player)
@@ -64,7 +63,6 @@ export default class MainScene extends Phaser.Scene {
             callback: () => this.game.events.emit('close-frame')
         })
 
-        // freeze the player while the frame is open
         this.game.events.on('open-frame', this.freezePlayer, this)
         this.game.events.on('close-frame', this.unfreezePlayer, this)
         this.events.once('shutdown', () => {
@@ -72,15 +70,10 @@ export default class MainScene extends Phaser.Scene {
             this.game.events.off('close-frame', this.unfreezePlayer, this)
         })
 
-        // start a fresh session if the persisted one has expired
-        // if (isGameSessionExpired(useGameSession.getState())) {
-        //     useGameSession.setState(newGameSession())
-        // }
-        
+        this.game.events.emit('scene-ready')
     }
 
     freezePlayer() {
-        // reset keys so none stay stuck "down" while focus is inside the iframe
         this.input.keyboard!.resetKeys()
         this.input.keyboard!.enabled = false
         this.player.setVelocity(0, 0)
@@ -102,7 +95,6 @@ export default class MainScene extends Phaser.Scene {
 
     update() {
         this.player.update();
-        // this.player2.update();
     }
 
 }
