@@ -1,3 +1,5 @@
+import { useItem } from "../Hooks/store";
+
 export default class Player extends Phaser.Physics.Matter.Sprite {
     inputKeys!: Record<string, Phaser.Input.Keyboard.Key>;
     playerCollider!: MatterJS.BodyType;
@@ -20,7 +22,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
 
     static preload(scene: Phaser.Scene) {
-        scene.load.atlas('player', '../../assets/player/player.png', '../../assets/player/player_atlas.json')
+        console.log(useItem.getState())
+        scene.load.atlas(useItem.getState().sprite_key, useItem.getState().textureURL, useItem.getState().atlasURL)
         // scene.load.animation('male_anim', '../../assets/player/male_anim.json')
     }
 
