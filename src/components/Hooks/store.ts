@@ -1,33 +1,45 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { GameSessionTypes, ItemActionsTypes, ItemTypes } from '../dataTypes'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import type { GameActionsTypes, GameSessionTypes, ItemActionsTypes, ItemTypes, SessionIdActionsTypes, SessionIdTypes } from '../dataTypes'
 
-const SESSION_LIFETIME_MS = 120 * 60 * 1000
-
-export const newGameSession = (): GameSessionTypes => ({
-    equipped_item_slug: 'player_atlas.json',
-    credits: 0,
-    expires_at: new Date(Date.now() + SESSION_LIFETIME_MS).toISOString(),
-})
-
-export const useGameSession = create<GameSessionTypes>()(
+export const useSessionId = create<SessionIdTypes & SessionIdActionsTypes>()(
     persist(
-        () => newGameSession(),
-        { name: 'game-session' }
+        (set) => ({
+            sessionId: null,
+            updateSessionId: (sessionId) => set({ sessionId }),
+        }),
+        { name: 'session-id', storage: createJSONStorage(() => sessionStorage) }
     )
 )
 
-export const useItem = create<ItemTypes & ItemActionsTypes>()((set) => ({
-    shop_id: null,
-    external_variant_id: null,
-    sprite_key: '',
-    textureURL: '',
-    atlasURL: '',
-    active: true,
-    updateShop_id: (shop_id) => set({ shop_id }),
-    updateExternal_variant_id: (external_variant_id) => set({ external_variant_id }),
-    updateSprite_key: (sprite_key) => set({ sprite_key }),
-    updateTextureURL: (textureURL) => set({ textureURL }),
-    updateAtlasURL: (atlasURL) => set({ atlasURL }),
-    updateActive: (active) => set({ active }),
-}))
+export const useGameSession = create<GameSessionTypes & GameActionsTypes>()(
+    persist(
+        (set) => ({
+            equipped_item_slug: '',
+            credits: 0,
+            updateCredits:(credits) => set({credits}),
+            updateEquipped_item_slug:(equipped_item_slug) => set({equipped_item_slug}),
+        }),
+        { name: 'game-session', storage: createJSONStorage(() => sessionStorage) }
+    )
+)
+
+export const useItem = create<ItemTypes & ItemActionsTypes>()(
+    persist(
+        (set) => ({
+            shop_id: null,
+            external_variant_id: null,
+            sprite_key: '',
+            textureURL: '',
+            atlasURL: '',
+            active: true,
+            updateShop_id: (shop_id) => set({ shop_id }),
+            updateExternal_variant_id: (external_variant_id) => set({ external_variant_id }),
+            updateSprite_key: (sprite_key) => set({ sprite_key }),
+            updateTextureURL: (textureURL) => set({ textureURL }),
+            updateAtlasURL: (atlasURL) => set({ atlasURL }),
+            updateActive: (active) => set({ active }),
+        }),
+        { name: 'item', storage: createJSONStorage(() => sessionStorage) }
+    )
+)
