@@ -22,7 +22,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
 
     static preload(scene: Phaser.Scene) {
-        console.log(useItem.getState())
         scene.load.atlas(useItem.getState().sprite_key, useItem.getState().textureURL, useItem.getState().atlasURL)
         // scene.load.animation('male_anim', '../../assets/player/male_anim.json')
     }
