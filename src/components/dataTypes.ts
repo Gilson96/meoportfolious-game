@@ -19,5 +19,17 @@ export type ItemActionsTypes = {
 export type GameSessionTypes = {
     equipped_item_slug: string,
     credits: number,
-    expires_at: string
+}
+
+export type GameActionsTypes = {
+  updateEquipped_item_slug: (equipped_item_slug: GameSessionTypes['equipped_item_slug']) => void
+  updateCredits: (credits: GameSessionTypes['credits']) => void
+}
+
+export type SessionIdTypes = {
+    sessionId: string | null
+}
+
+export type SessionIdActionsTypes = {
+  updateSessionId: (sessionId: SessionIdTypes['sessionId']) => void
 }
