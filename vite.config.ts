@@ -14,9 +14,14 @@ export default defineConfig({
   server: {
     port: 5175,
     strictPort: true,
-    // The backend serves these as static files with no CORS headers, so load them through Vite instead
     proxy: {
       "/meoportfolious-assets": "http://localhost:8000",
+      "/api": {
+        target: "https://manual-improper-cottage.ngrok-free.dev",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        headers: { "ngrok-skip-browser-warning": "true" },
+      },
     },
   }
 })
