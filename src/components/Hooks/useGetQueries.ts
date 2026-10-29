@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import type { ItemTypes } from "../dataTypes";
-import { useItem } from "./store";
+import type { GameSessionInventoryTypes, GameSessionTypes, ItemTypes } from "../dataTypes";
+import { useItem, useSessionId } from "./store";
 
 const toProxyPath = (url: string) => new URL(url, window.location.origin).pathname;
 
@@ -11,8 +11,8 @@ export const useGetItem = (itemId: number) => {
     queryFn: () =>
       axios
         .get(
-          `/item/${itemId}`,{
-          }
+          `/item/${itemId}`, {
+        }
         )
         .then((res) => {
           const item: ItemTypes = {
@@ -44,13 +44,20 @@ export const useGetItem = (itemId: number) => {
   return { isLoading, isFetching, error, item: data, isError };
 };
 
-export const useGetGameSession = (gameSessionId: string) => {
-  const { isLoading, isFetching, error, data, isError } = useQuery<ItemTypes>({
+export const useGetGameSession = () => {
+  const gameSessionId = useSessionId.getState().sessionId ?? ''
+  const { isLoading, isFetching, error, data, isError } = useQuery<GameSessionTypes & GameSessionInventoryTypes>({
     queryKey: ["gameSession", gameSessionId],
     queryFn: () =>
-      axios
-        .get(`/game-session/${gameSessionId}`)
-        .then((res) => res.data)
+      axios.get(`/game-session/${gameSessionId}`).then((res) => ({
+        ...res.data,
+        inventory: res.data.inventory.map((item: ItemTypes) => ({
+          ...item,
+          textureURL: toProxyPath(item.textureURL),
+          atlasURL: toProxyPath(item.atlasURL),
+        })),
+      })),
+    enabled: !!gameSessionId
   });
 
   return { isLoading, isFetching, error, gameSession: data, isError };
