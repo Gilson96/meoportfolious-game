@@ -4,7 +4,6 @@ import { usePostGameSession } from "./usePostQueries"
 import MainScene from "../MainScene/MainScene"
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin"
 import { useGetGameSession } from './useGetQueries'
-import { useSessionId } from './store'
 
 export const useSaveGameSession = () => {
   const { mutate } = usePostGameSession()
@@ -17,19 +16,13 @@ export const useSaveGameSession = () => {
   }, [])
 }
 
-export const useGetInventory = () => {
-  const gameSessionId = useSessionId.getState().sessionId ?? ''
-  const {error, gameSession, isError, isFetching, isLoading} = useGetGameSession(gameSessionId)
-
-  console.log(gameSession);
-}
-
-
 export const usePhaserGameConfig = (containerRef: RefObject<HTMLDivElement | null>, gameRef: RefObject<Phaser.Game | null>) => {
+  const {error, gameSession, isError, isFetching, isLoading} = useGetGameSession()
   const [frame, setFrame] = useState<{ name: string } | null>(null)
-
+  const hasSession = !!gameSession
+  
   useEffect(() => {
-    if (gameRef.current || !containerRef.current) return
+    if (gameRef.current || !containerRef.current || !gameSession) return
 
     const game = new Phaser.Game({
       type: Phaser.AUTO,
@@ -56,6 +49,9 @@ export const usePhaserGameConfig = (containerRef: RefObject<HTMLDivElement | nul
           }
         ]
       },
+      callbacks: {
+        preBoot: (game) => game.registry.set('equippedItem', gameSession.inventory[0])
+      }
     })
 
     gameRef.current = game
@@ -68,7 +64,7 @@ export const usePhaserGameConfig = (containerRef: RefObject<HTMLDivElement | nul
       game.destroy(true)
       gameRef.current = null
     }
-  }, [])
+  }, [hasSession])
 
   return frame
 }
