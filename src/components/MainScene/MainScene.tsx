@@ -31,7 +31,7 @@ export default class MainScene extends Phaser.Scene {
         map.createLayer('Base', concrete!, 0, 0)
 
         
-        this.player = new Player({ scene: this, x: 100, y: 100, texture: 'player', frame: 'south_frame_000' });
+        this.player = new Player({ scene: this, x: 100, y: 100, texture: this.registry.get('equippedItem').sprite_key, frame: 'south_frame_000' });
         console.log(this.player)
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
