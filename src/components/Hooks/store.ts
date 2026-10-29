@@ -16,8 +16,8 @@ export const useGameSession = create<GameSessionTypes & GameActionsTypes>()(
     persist(
         (set) => ({
             equipped_item_slug: '',
-            credits: 0,
-            updateCredits:(credits) => set({credits}),
+            amountSpend: 0,
+            updateCredits:(amountSpend) => set({amountSpend}),
             updateEquipped_item_slug:(equipped_item_slug) => set({equipped_item_slug}),
         }),
         { name: 'game-session', storage: createJSONStorage(() => sessionStorage) }
