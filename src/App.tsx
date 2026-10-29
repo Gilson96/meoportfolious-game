@@ -2,7 +2,6 @@ import type * as Phaser from 'phaser'
 import { useRef } from 'react'
 import { useGetInventory, usePhaserGameConfig, useSaveGameSession } from './components/Hooks/useGameInitializationConfig'
 
-
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null)
   const gameRef = useRef<Phaser.Game | null>(null)
@@ -10,7 +9,7 @@ export function App() {
   useSaveGameSession();
   const frame = usePhaserGameConfig(containerRef, gameRef);
   useGetInventory()
-  
+
   return (
     <div ref={containerRef} className="relative h-svh w-full overflow-hidden">
       {frame && (
