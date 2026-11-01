@@ -19,7 +19,6 @@ export default defineConfig({
       "/api": {
         target: "https://manual-improper-cottage.ngrok-free.dev",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
         headers: { "ngrok-skip-browser-warning": "true" },
       },
     },
