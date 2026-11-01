@@ -1,29 +1,47 @@
 import * as Phaser from 'phaser'
 import { useEffect, useRef, useState, type RefObject } from "react"
-import { usePostGameSession } from "./usePostQueries"
+import { useDeleteShopSession, usePostGameSession, usePostShopSession } from "./usePostQueries"
 import MainScene from "../MainScene/MainScene"
-import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin"
-import { useGetGameSession } from './useGetQueries'
+import { PhaserMatterCollisionPlugin } from "phaser-matter-collision-plugin"
+import { useGetGameSession, useGetShop } from './useGetQueries'
+import { useSessionId } from './store'
+import type { ShopFrameTypes } from '../dataTypes'
 
 export const useSaveGameSession = () => {
   const { mutate } = usePostGameSession()
   const savedRef = useRef(false)
 
   useEffect(() => {
-    if (savedRef.current) return
+    if (savedRef.current || useSessionId.getState().gameSessionId) return
     savedRef.current = true
     mutate()
   }, [])
 }
 
+export const useShopSession = (frame: ShopFrameTypes | null) => {
+  const { mutate: openShopSession } = usePostShopSession()
+  const { mutate: closeShopSession } = useDeleteShopSession()
+  const shopId = frame?.shopId
+
+  useEffect(() => {
+    if (shopId === undefined) return
+    openShopSession(shopId)
+
+    return () => {
+      if (useSessionId.getState().shopSessionId) closeShopSession()
+    }
+  }, [shopId])
+}
+
 export const usePhaserGameConfig = (containerRef: RefObject<HTMLDivElement | null>, gameRef: RefObject<Phaser.Game | null>) => {
   const {error, gameSession, isError, isFetching, isLoading} = useGetGameSession()
-  const [frame, setFrame] = useState<{ name: string } | null>(null)
+  const { shops } = useGetShop()
+  const [frame, setFrame] = useState<ShopFrameTypes | null>(null)
   const hasSession = !!gameSession
-  
-  useEffect(() => {
-    if (gameRef.current || !containerRef.current || !gameSession) return
 
+  useEffect(() => {
+    if (gameRef.current || !containerRef.current || !gameSession || !shops) return
+  
     const game = new Phaser.Game({
       type: Phaser.AUTO,
       backgroundColor: '#333333',
@@ -50,12 +68,15 @@ export const usePhaserGameConfig = (containerRef: RefObject<HTMLDivElement | nul
         ]
       },
       callbacks: {
-        preBoot: (game) => game.registry.set('equippedItem', gameSession.inventory[0])
+        preBoot: (game) => {
+          game.registry.set('equippedItem', gameSession.inventory[0])
+          game.registry.set('shops', shops)
+        }
       }
     })
 
     gameRef.current = game
-    game.events.on('open-frame', (data: { name: string }) => setFrame(data))
+    game.events.on('open-frame', (data: ShopFrameTypes) => setFrame(data))
     game.events.on('close-frame', () => setFrame(null))
 
     return () => {
