@@ -1,16 +1,17 @@
-import type { ItemTypes } from "../dataTypes";
+import type { ItemTypes, PlayerTypes } from "../dataTypes";
+
 export default class Player extends Phaser.Physics.Matter.Sprite {
     inputKeys!: Record<string, Phaser.Input.Keyboard.Key>;
     playerCollider!: MatterJS.BodyType;
     
-    constructor(data: { scene: {matter: {world: Phaser.Physics.Matter.World}}, x: number, y: number, texture: string, frame: string, isStatic?: boolean }) {
+    constructor(data: PlayerTypes) {
         const { scene, x, y, texture, frame, isStatic = false } = data
         super(scene.matter.world, x, y, texture, frame)
         this.scene.add.existing(this)
 
         // @ts-ignore
-        const {Body, Bodies} = Phaser.Physics.Matter.Matter
-        this.playerCollider = Bodies.circle(x, y, 12, {isSensor:false, label:'playerCollider'})
+        const { Body, Bodies } = Phaser.Physics.Matter.Matter
+        this.playerCollider = Bodies.circle(x, y, 12, { isSensor: false, label: 'playerCollider' })
         const compoundBody = Body.create({
             parts: [this.playerCollider],
             frictionAir: 0.35
@@ -27,10 +28,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
 
     update() {
-        
+
         const speed = 2.5
         let playerVelocity = new Phaser.Math.Vector2();
-        
+
         if (this.inputKeys.left.isDown) {
             playerVelocity.x = -1
         } else if (this.inputKeys.right.isDown) {
