@@ -3,14 +3,20 @@ import Player from "../Entities/Player";
 import Resource from "../Entities/Resource";
 import Shop from "../Entities/Shop";
 import type { ShopTypes } from "../dataTypes";
+
+type ShopEntry = {
+    shop: Shop;
+    data: ShopTypes;
+    prompt: Phaser.GameObjects.Text;
+    touched: boolean;
+};
+
 export default class MainScene extends Phaser.Scene {
     matterCollision!: PhaserMatterCollisionPlugin;
     resources: Resource[] = [];
     player!: Player;
     player2!: Player;
-    shop!: Shop;
-    shopPrompt!: Phaser.GameObjects.Text;
-    touchedShop = false;
+    shops: ShopEntry[] = [];
     shopPopup: Window | null = null;
     map!: Phaser.Tilemaps.Tilemap;
     inputKeys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -38,6 +44,7 @@ export default class MainScene extends Phaser.Scene {
 
         // player
         this.player = new Player({ scene: this, x: 100, y: 100, texture: this.registry.get('equippedItem').sprite_key, frame: 'south_frame_000' });
+        this.player.setDepth(1)
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
             down: Phaser.Input.Keyboard.KeyCodes.S,
@@ -45,15 +52,18 @@ export default class MainScene extends Phaser.Scene {
             right: Phaser.Input.Keyboard.KeyCodes.D
         }) as Record<string, Phaser.Input.Keyboard.Key>;
 
-        // shop
-        const shopData: ShopTypes = this.registry.get('shops')[0]
-        this.shop = new Shop({ scene: this, x: 250, y: 0, shop: shopData })
-        this.shopPrompt = this.add.text(this.shop.x, this.shop.y + 20, 'Press E to enter shop', {
-            fontSize: '12px',
-            color: '#ffffff',
-            backgroundColor: '#000000aa',
-            padding: { x: 6, y: 4 }
-        }).setOrigin(0.5).setDepth(10).setVisible(false)
+        // shops
+        const shopsData: ShopTypes[] = this.registry.get('shops')
+        this.shops = shopsData.map((shopData) => {
+            const shop = new Shop({ scene: this, x: shopData.position.x, y: shopData.position.y, shop: shopData })
+            const prompt = this.add.text(shop.x, shop.y + 20, 'Press E to enter shop', {
+                fontSize: '12px',
+                color: '#ffffff',
+                backgroundColor: '#000000aa',
+                padding: { x: 6, y: 4 }
+            }).setOrigin(0.5).setDepth(10).setVisible(false)
+            return { shop, data: shopData, prompt, touched: false }
+        })
 
         // set bounds to camera and follows the sprite
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
@@ -63,29 +73,36 @@ export default class MainScene extends Phaser.Scene {
         this.events.once('shutdown', () => this.scale.off('resize', this.fitCameraToScreen, this))
 
         // collisions
-        this.matterCollision?.addOnCollideStart({
-            objectA: this.player.playerCollider,
-            objectB: this.shop,
-            callback: () => {
-                this.touchedShop = true
-                this.shopPrompt.setVisible(true)
-            }
-        })
+        this.shops.forEach((entry) => {
+            this.matterCollision?.addOnCollideStart({
+                objectA: this.player.playerCollider,
+                objectB: entry.shop,
+                callback: () => {
+                    entry.touched = true
+                    entry.prompt.setVisible(true)
+                }
+            })
 
-        this.matterCollision?.addOnCollideEnd({
-            objectA: this.player.playerCollider,
-            objectB: this.shop,
-            callback: () => {
-                this.touchedShop = false
-                this.shopPrompt.setVisible(false)
-            }
+            this.matterCollision?.addOnCollideEnd({
+                objectA: this.player.playerCollider,
+                objectB: entry.shop,
+                callback: () => {
+                    entry.touched = false
+                    entry.prompt.setVisible(false)
+                }
+            })
         })
 
         const enterShop = () => {
-            if (!this.touchedShop || this.shopPopup) return
-            this.shopPopup = window.open(shopData.shop_link, 'clothes-shop', 'popup,width=1000,height=800')
-            if (!this.shopPopup) return
-            this.game.events.emit('open-frame', { name: 'Clothes Shop', shopId: shopData.id, shopLink: shopData.shop_link })
+            const entry = this.shops.find((s) => s.touched)
+            if (!entry || this.shopPopup) return
+            const { id, shop_link, provider } = entry.data
+            if (provider === 'shopify') {
+                const { availWidth, availHeight } = window.screen
+                this.shopPopup = window.open(shop_link, 'clothes-shop', `popup,left=0,top=0,width=${availWidth},height=${availHeight}`)
+                if (!this.shopPopup) return
+            }
+            this.game.events.emit('open-frame', { name: 'Clothes Shop', shopId: id, shopLink: shop_link, provider })
         }
         this.input.keyboard!.on('keydown-E', enterShop)
 
@@ -106,12 +123,12 @@ export default class MainScene extends Phaser.Scene {
         this.input.keyboard!.resetKeys()
         this.input.keyboard!.enabled = false
         this.player.setVelocity(0, 0)
-        this.shopPrompt.setVisible(false)
+        this.shops.forEach((entry) => entry.prompt.setVisible(false))
     }
 
     unfreezePlayer() {
         this.input.keyboard!.enabled = true
-        this.shopPrompt.setVisible(this.touchedShop)
+        this.shops.forEach((entry) => entry.prompt.setVisible(entry.touched))
     }
 
     fitCameraToScreen() {
