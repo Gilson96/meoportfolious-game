@@ -49,14 +49,23 @@ export type PlayerTypes = {
   isStatic?: boolean
 }
 
-export type ShopTypes = {
-  id: number,
+export type ShopConfigTypes = {
   sprite_key: string
   textureURL: string
   atlasURL: string
   provider: string
   shop_link: string
-  config: null
+  password: string | null
+  position: { x: number, y: number }
+}
+
+export type ShopRowTypes = {
+  id: number
+  config: ShopConfigTypes
+}
+
+export type ShopTypes = ShopConfigTypes & {
+  id: ShopRowTypes['id']
 }
 
 
@@ -64,4 +73,5 @@ export type ShopFrameTypes = {
   name: string
   shopId: ShopTypes['id']
   shopLink: string
+  provider: ShopTypes['provider']
 }
