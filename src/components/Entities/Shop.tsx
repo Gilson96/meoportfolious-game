@@ -17,7 +17,7 @@ export default class Shop extends Phaser.Physics.Matter.Sprite {
     }
 
     static preload(scene: Phaser.Scene) {
-        const shop: ShopTypes = scene.registry.get('shops')[0]
-        scene.load.atlas(shop.sprite_key, shop.textureURL, shop.atlasURL)
+        const shops: ShopTypes[] = scene.registry.get('shops')
+        shops.forEach((shop) => scene.load.atlas(shop.sprite_key, shop.textureURL, shop.atlasURL))
     }
 }
