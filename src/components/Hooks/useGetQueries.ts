@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import type { GameSessionInventoryTypes, GameSessionTypes, ItemTypes, ShopTypes } from "../dataTypes";
+import type { GameSessionInventoryTypes, GameSessionTypes, ItemTypes, ShopRowTypes, ShopTypes } from "../dataTypes";
 import { useSessionId } from "./store";
 import instance from "./useAxios";
 
@@ -70,10 +70,11 @@ export const useGetShop = () => {
     queryKey: ["shop"],
     queryFn: () =>
       instance.get(`/shop`).then((res) =>
-        res.data.map((shop: ShopTypes) => ({
-          ...shop,
-          textureURL: toProxyPath(shop.textureURL),
-          atlasURL: toProxyPath(shop.atlasURL),
+        res.data.map(({ id, config }: ShopRowTypes): ShopTypes => ({
+          ...config,
+          id,
+          textureURL: toProxyPath(config.textureURL),
+          atlasURL: toProxyPath(config.atlasURL),
         }))
       ),
   });
