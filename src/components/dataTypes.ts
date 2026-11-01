@@ -1,10 +1,10 @@
 export type ItemTypes = {
-    shop_id: number | null;
-    external_variant_id: number | null
-    sprite_key: string
-    textureURL: string
-    atlasURL: string
-    active: boolean
+  shop_id: number | null;
+  external_variant_id: number | null
+  sprite_key: string
+  textureURL: string
+  atlasURL: string
+  active: boolean
 }
 
 export type ItemActionsTypes = {
@@ -17,8 +17,8 @@ export type ItemActionsTypes = {
 }
 
 export type GameSessionTypes = {
-    equipped_item_slug: string,
-    amountSpend: number,
+  equipped_item_slug: string,
+  amountSpend: number,
 }
 
 export type GameActionsTypes = {
@@ -31,9 +31,37 @@ export type GameSessionInventoryTypes = {
 }
 
 export type SessionIdTypes = {
-    sessionId: string | null
+  gameSessionId: string | null
+  shopSessionId: string | null
 }
 
 export type SessionIdActionsTypes = {
-  updateSessionId: (sessionId: SessionIdTypes['sessionId']) => void
+  updateGameSessionId: (gameSessionId: SessionIdTypes['gameSessionId']) => void
+  updateShopSessionId: (shopSessionId: SessionIdTypes['shopSessionId']) => void
+}
+
+export type PlayerTypes = {
+  scene: { matter: { world: Phaser.Physics.Matter.World } }
+  x: number
+  y: number
+  texture: string
+  frame: string
+  isStatic?: boolean
+}
+
+export type ShopTypes = {
+  id: number,
+  sprite_key: string
+  textureURL: string
+  atlasURL: string
+  provider: string
+  shop_link: string
+  config: null
+}
+
+
+export type ShopFrameTypes = {
+  name: string
+  shopId: ShopTypes['id']
+  shopLink: string
 }
