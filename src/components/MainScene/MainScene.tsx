@@ -106,7 +106,7 @@ export default class MainScene extends Phaser.Scene {
         }
         this.input.keyboard!.on('keydown-E', enterShop)
 
-        // game events
+        // un/freeze on event
         this.game.events.on('open-frame', this.freezePlayer, this)
         this.game.events.on('close-frame', this.unfreezePlayer, this)
         this.events.once('shutdown', () => {
