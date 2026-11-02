@@ -3,6 +3,9 @@ import Player from "../Entities/Player";
 import Resource from "../Entities/Resource";
 import Shop from "../Entities/Shop";
 import type { ShopTypes } from "../dataTypes";
+import { resourcesData } from "./resourcesData";
+
+const UI_DEPTH = 100_000
 
 type ShopEntry = {
     shop: Shop;
@@ -29,12 +32,12 @@ export default class MainScene extends Phaser.Scene {
         this.load.on('progress', (value: number) => this.game.events.emit('load-progress', value))
 
         Player.preload(this)
-        // Resource.preload(this)
+        Shop.preload(this)
+        Resource.preload(this)
         this.load.image('concrete_grass', '/assets/tiles/concrete_grass.png')
         this.load.tilemapTiledJSON('map', '/assets/map.tmj')
-        Shop.preload(this)
     }
-    
+
     create() {
         // map
         const map = this.make.tilemap({ key: 'map' })
@@ -44,7 +47,6 @@ export default class MainScene extends Phaser.Scene {
 
         // player
         this.player = new Player({ scene: this, x: 100, y: 100, texture: this.registry.get('equippedItem').sprite_key, frame: 'south_frame_000' });
-        this.player.setDepth(1)
         this.player.inputKeys = this.input.keyboard!.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
             down: Phaser.Input.Keyboard.KeyCodes.S,
@@ -61,9 +63,12 @@ export default class MainScene extends Phaser.Scene {
                 color: '#ffffff',
                 backgroundColor: '#000000aa',
                 padding: { x: 6, y: 4 }
-            }).setOrigin(0.5).setDepth(10).setVisible(false)
+            }).setOrigin(0.5).setDepth(UI_DEPTH).setVisible(false)
             return { shop, data: shopData, prompt, touched: false }
         })
+
+        // resources
+        this.resources = resourcesData.map((resource) => new Resource({ scene: this, resource }))
 
         // set bounds to camera and follows the sprite
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
