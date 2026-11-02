@@ -49,6 +49,15 @@ export type PlayerTypes = {
   isStatic?: boolean
 }
 
+export type ResourceTypes = {
+  frame: string
+  x: number
+  y: number
+  radius?: number
+  // rectangle collider centred on (x, y), used instead of the circle when set
+  collider?: { width: number, height: number }
+}
+
 export type ShopConfigTypes = {
   sprite_key: string
   textureURL: string
