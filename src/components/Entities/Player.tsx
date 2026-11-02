@@ -46,6 +46,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         playerVelocity.normalize();
         playerVelocity.scale(speed)
         this.setVelocity(playerVelocity.x, playerVelocity.y)
+        // sort against resources by where the collider is, the same point they sort by
+        this.setDepth(this.y)
 
         //Choose between walking animation or idle 
         // if(Math.abs(this.getVelocity().x) > 0.1 || Math.abs(this.getVelocity().y) > 0.1) {
