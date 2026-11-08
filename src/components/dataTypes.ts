@@ -56,6 +56,10 @@ export type ResourceTypes = {
   radius?: number
   // rectangle collider centred on (x, y), used instead of the circle when set
   collider?: { width: number, height: number }
+  // flat decoration the player walks over, drawn beneath everything else
+  ground?: boolean
+  // draw size multiplier; the collider and radius stay in map pixels
+  scale?: number
 }
 
 export type ShopConfigTypes = {
