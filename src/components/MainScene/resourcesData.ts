@@ -1,12 +1,5 @@
 import type { ResourceTypes } from "../dataTypes";
 
-// flower sprites are 28px wide, so a run of them lines up edge to edge
-const row = (frame: string, fromX: number, toX: number, y: number, step = 28): ResourceTypes[] => {
-    const items: ResourceTypes[] = []
-    for (let x = fromX; x <= toX; x += step) items.push({ frame, x, y })
-    return items
-}
-
 const FENCE_STEP = 61
 const FENCE_SIDE_STEP = 27
 
@@ -26,67 +19,68 @@ const fenceColumn = (facing: 'east' | 'west', x: number, fromY: number, count: n
         collider: { width: 10, height: FENCE_SIDE_STEP },
     }))
 
+const QUINCUNX_STEP_X = 34
+const QUINCUNX_STEP_Y = 22
+
+// quincunx arragement
+const quincunx = (frame: string, fromX: number, toX: number, fromY: number, rows: number, shiftFirstRow = false, scale?: number): ResourceTypes[] =>
+    Array.from({ length: rows }, (_, row) => {
+        const startX = fromX + ((row + (shiftFirstRow ? 1 : 0)) % 2) * (QUINCUNX_STEP_X / 2)
+        const count = Math.floor((toX - startX) / QUINCUNX_STEP_X) + 1
+        return Array.from({ length: count }, (_, i) => ({
+            frame,
+            x: startX + i * QUINCUNX_STEP_X,
+            y: fromY + row * QUINCUNX_STEP_Y,
+            scale,
+        }))
+    }).flat()
+
 export const resourcesData: ResourceTypes[] = [
-    // tree line along the top edge, peeking in from off the map
-    { frame: 'tree', x: 330, y: 66 },
-    { frame: 'tree', x: 495, y: 84 },
-    { frame: 'tree', x: 690, y: 45 },
-    { frame: 'tree', x: 925, y: 100 },
-
-    // trees in the gaps between buildings
-    { frame: 'tree', x: 335, y: 170 },
-    { frame: 'tree', x: 703, y: 128 },
-    { frame: 'tree', x: 955, y: 200 },
-    // { frame: 'tree', x: 960, y: 330 },
-
-    // back fences behind the clothes shop and the pizza shop, posts flush with the shop walls
+    { frame: 'tree', x: 120, y: 100 },
+    { frame: 'tree', x: 220, y: 550 },
+    { frame: 'tree', x: 220, y: 100 },
+    { frame: 'tree', x: 240, y: 400 },
+    { frame: 'tree', x: 700, y: 220 },
+    { frame: 'tree', x: 730, y: 420 },
+    { frame: 'tree', x: 730, y: 600 },
+    { frame: 'tree', x: 940, y: 280 },
+    { frame: 'tree', x: 940, y: 380 },
+    
+    ...fenceRow('south', 40, 1, 252),
+    ...fenceRow('south', 40, 2, 310),
+    ...fenceRow('south', 40, 1, 485),
+    ...fenceColumn('west', 70, 90, 7),
+    ...fenceColumn('west', 270, 90, 7),
+    ...fenceRow('south', 180, 2, 485),
+    ...fenceRow('south', 301, 3, 252),
+    ...fenceRow('south', 301, 3, 252),
     ...fenceRow('north', 106, 3, 60),
     ...fenceRow('south', 680, 3, 252),
-    // fence and flower bed lining the road between the clothes shop and the house
-    ...fenceColumn('west', 270, 90, 7),
-    ...fenceRow('south', 301, 3, 252),
-    { frame: 'flower-bush', x: 290, y: 200 },
-    { frame: 'flower-bush', x: 410, y: 198 },
-
-    // fence and flowers by the road left of the clothes shop
-    ...fenceRow('south', 40, 1, 252),
-    ...fenceColumn('west', 70, 90, 7),
-    { frame: 'flower-bush', x: 40, y: 60 },
-    { frame: 'flower-bush', x: 15, y: 60 },
-    { frame: 'flower-bush', x: 30, y: 70 },
-    { frame: 'flower-bush', x: 20, y: 30 },
-    { frame: 'flower-bush', x: 20, y: 120 },
-    { frame: 'flower-bush', x: 58, y: 100 },
-    { frame: 'flower-bush', x: 58, y: 150 },
-    { frame: 'flower-bush', x: 30, y: 192 },
-    { frame: 'flower-bush', x: 58, y: 198 },
-    { frame: 'flower-bush', x: 26, y: 150 },
-    { frame: 'flower-bush', x: 20, y: 300 },
-    { frame: 'flower-bush', x: 48, y: 308 },
-
-    // // fenced flower garden on the west side, open at the bottom right onto the road
-    // ...fenceRow('north', 101, 3, 342),
-    // ...fenceColumn('west', 70, 369, 6),
-    // ...fenceColumn('east', 253, 369, 4),
-    // ...fenceRow('south', 101, 2, 531),
-    // ...row('flower-bush', 96, 232, 392, 34),
-    // ...row('flower-bush', 96, 232, 440, 34),
-    // ...row('flower-bush', 96, 198, 488, 34),
-    // { frame: 'tree', x: 10, y: 400 },
-    // { frame: 'tree', x: 5, y: 520 },
-    // { frame: 'tree', x: 30, y: 620 },
-
-    // fountain in the middle of the plaza; its pivot is the centre of the basin
-    { frame: 'fountain', x: 480, y: 432, collider: { width: 100, height: 70 } },
-
-    // flowers between the house and the pizza shop
-    { frame: 'flower-bush', x: 690, y: 278 },
-    { frame: 'flower-bush', x: 718, y: 284 },
-    { frame: 'flower-bush', x: 950, y: 278 },
-
-    // east meadow: fence along the road and down its west side, and a lake
+    ...fenceRow('north', 106, 3, 60),
+    ...fenceRow('south', 680, 3, 252),
     ...fenceRow('north', 711, 3, 380),
     ...fenceColumn('west', 680, 407, 8),
-    // the lake's pivot is its centre, so the collider covers the water inside the stone rim
+
+    ...quincunx('flower-bush', 18, 190, 332, 6),
+    ...quincunx('flower-bush', 80, 110, 100, 8),
+    ...quincunx('flower-bush', 300, 440, 120, 5),
+    ...quincunx('flower-bush', 680, 750, 270, 2),
+    ...quincunx('flower-bush', 750, 910, 120, 5),
+
+    { frame: 'fountain', x: 480, y: 432, collider: { width: 104, height: 74 } },
+
+    { frame: 'lamp-post', x: 412, y: 386, radius: 6 },
+    { frame: 'lamp-post', x: 548, y: 386, radius: 6 },
+    { frame: 'lamp-post', x: 290, y: 360, radius: 6 },
+    { frame: 'lamp-post', x: 290, y: 480, radius: 6 },
+
+    { frame: 'bench', x: 235, y: 460, scale: 1.2, collider: { width: 36, height: 20 } },
+
     { frame: 'lake', x: 840, y: 500, collider: { width: 250, height: 100 } },
+   
+    { frame: 'rocks', x: 700, y: 410, radius: 6, scale: 0.7 },
+    { frame: 'rocks', x: 700, y: 430, radius: 6, scale: 0.7 },
+    { frame: 'rocks', x: 700, y: 450, radius: 6, scale: 0.7 },
+    { frame: 'rocks', x: 885, y: 380, radius: 6, scale: 0.7 },
+    { frame: 'rocks', x: 910, y: 380, radius: 6, scale: 0.7 },
 ]
